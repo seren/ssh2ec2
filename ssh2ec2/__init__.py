@@ -96,6 +96,8 @@ def main():
     if len(instances) == 0:
         print 'No instances matching criteria'
         sys.exit(1)
+    else:
+        print "Found %s instance(s)" % len(instances)
 
     instance_dns_names = []
     if args.all_matching_instances:
