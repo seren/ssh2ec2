@@ -100,11 +100,18 @@ def main():
     instance_dns_names = []
     if args.all_matching_instances:
         for instance in instances:
-            instance_dns_names.append(instance.public_dns_name)
+            if instance.public_dns_name != '':
+                instance_dns_names.append(instance.public_dns_name)
     else:
-        # Pick a random instance from the results
-        instance = instances[random.randrange(0, len(instances))]
-        instance_dns_names.append(instance.public_dns_name)
+        # Pick a random instance from the results, that is directly reachable
+        while ((len(instance_dns_names) < 1) and (len(instances) > 0)):
+            instance = instances.pop(random.randint(0, len(instances)) - 1)
+            if instance.public_dns_name != '':
+                instance_dns_names.append(instance.public_dns_name)
+
+    if len(instance_dns_names) < 1:
+        print "No instances had public ips. Exiting..."
+        sys.exit(1)
 
     if args.command:
         remote_command = ' '.join(args.command)
