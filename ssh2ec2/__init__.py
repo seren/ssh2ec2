@@ -8,7 +8,7 @@ import os
 
 def get_filters(args):
     """ Return a dict of filters based on the given arguments """
-    filters = {}
+    filters = {'instance_state_name': 'running'}
 
     if args.tag:
         for t in args.tag:
