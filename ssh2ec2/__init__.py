@@ -110,6 +110,8 @@ def main():
             instance = instances.pop(random.randint(0, len(instances)) - 1)
             if instance.public_dns_name != '':
                 instance_dns_names.append(instance.public_dns_name)
+            elif instance.ip_address != '':
+                instance_dns_names.append(instance.ip_address)
 
     if len(instance_dns_names) < 1:
         print "No instances had public ips. Exiting..."
