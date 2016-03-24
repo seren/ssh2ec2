@@ -71,7 +71,7 @@ def parse_args():
     # AWS connection args
     parser.add_argument('--credentials-profile',
                         help='The name of a profile configured in the AWS credentials file')
-    parser.add_argument('--region', default='us-east-1')
+    parser.add_argument('--region', default=None)
     # SSH args
     parser.add_argument('--ssh-user', help='Username to use for SSH connection')
     parser.add_argument('--ssh-args', default='', help='Additional arguments for SSH')
@@ -87,7 +87,10 @@ def main():
     args = parse_args()
     # Retrieve a list of instances that match the filters
     try:
-        conn = boto.ec2.connect_to_region(args.region, profile_name=args.credentials_profile)
+        if args.region:
+            conn = boto.ec2.connect_to_region(args.region, profile_name=args.credentials_profile)
+        else:
+            conn = boto.connect_ec2(profile_name=args.credentials_profile)
     except boto.provider.ProfileNotFoundError:
         print 'Credentials profile "%s" not found' % args.credentials_profile
         sys.exit(1)
