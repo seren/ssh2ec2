@@ -118,6 +118,8 @@ def parse_args():
                         help='Connect to or run command on all instances, instead of single random instance')
     # Any additional args are passed directly to SSH
     parser.add_argument('command', nargs=argparse.REMAINDER, help='Optional command to execute via SSH')
+    # Misc operational flags
+    parser.add_argument('-v', '--verbose', action='store_const', const=True, default=False)
 
     return parser.parse_args()
 
@@ -125,6 +127,7 @@ def parse_args():
 def main():
 
     args = parse_args()
+    v = args.verbose
 
     try:
         boto3.setup_default_session(profile_name=args.profile, region_name=args.region)
@@ -138,6 +141,9 @@ def main():
     if len(reservations['Reservations']) == 0:
         print('No instances matching criteria')
         sys.exit(1)
+    else:
+        if v: print "Found %s instance(s):" % len(instances)
+        if v: print "\n".join([x.id + ': ' + (x.public_dns_name or x.ip_address or '(no external ip)') for x in instances])
 
     instance_dns_names = [[
         instance['PublicDnsName'] for instance in reservation['Instances']][0]
@@ -159,6 +165,7 @@ def main():
             dns_name = '%s@%s' % (args.ssh_user, dns_name)
 
         ssh_cmd = 'ssh %s %s %s' % (args.ssh_args, dns_name, remote_command)
+        if v: print "\n" + ssh_cmd
         os.system(ssh_cmd)
 
 
