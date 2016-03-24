@@ -99,21 +99,21 @@ def main():
     else:
         print "Found %s instance(s)" % len(instances)
 
-    instance_dns_names = []
+    instance_addresses = []
     if args.all_matching_instances:
         for instance in instances:
             if instance.public_dns_name != '':
-                instance_dns_names.append(instance.public_dns_name)
+                instance_addresses.append(instance.public_dns_name)
     else:
         # Pick a random instance from the results, that is directly reachable
-        while ((len(instance_dns_names) < 1) and (len(instances) > 0)):
+        while ((len(instance_addresses) < 1) and (len(instances) > 0)):
             instance = instances.pop(random.randint(0, len(instances)) - 1)
             if instance.public_dns_name != '':
-                instance_dns_names.append(instance.public_dns_name)
+                instance_addresses.append(instance.public_dns_name)
             elif instance.ip_address != '':
-                instance_dns_names.append(instance.ip_address)
+                instance_addresses.append(instance.ip_address)
 
-    if len(instance_dns_names) < 1:
+    if len(instance_addresses) < 1:
         print "No instances had public ips. Exiting..."
         sys.exit(1)
 
@@ -122,11 +122,11 @@ def main():
     else:
         remote_command = ''
 
-    for dns_name in instance_dns_names:
+    for address in instance_addresses:
         if args.ssh_user:
-            dns_name = '%s@%s' % (args.ssh_user, dns_name)
+            address = '%s@%s' % (args.ssh_user, address)
 
-        ssh_cmd = 'ssh %s %s %s' % (args.ssh_args, dns_name, remote_command)
+        ssh_cmd = 'ssh %s %s %s' % (args.ssh_args, address, remote_command)
         os.system(ssh_cmd)
 
 
