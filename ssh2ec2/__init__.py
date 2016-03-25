@@ -137,15 +137,16 @@ def main():
         sys.exit(1)
 
     # Retrieve a list of instances that match the filters
+    if v: print "Filters: %s" % get_filters(args)
     reservations = conn.describe_instances(Filters=get_filters(args))
     if len(reservations['Reservations']) == 0:
         print('No instances matching criteria')
         sys.exit(1)
-    else:
-        if v: print "Found %s instance(s):" % len(instances)
-        if v: print "\n".join([x.id + ': ' + (x.public_dns_name or x.ip_address or '(no external ip)') for x in instances])
 
     instances = sum([reservation['Instances'] for reservation in reservations['Reservations']],[])
+    if v: print "Found %s instance(s):" % len(instances)
+    if v: print "\n".join([x['InstanceId'] + ': ' + (x['PublicDnsName'] or x['PublicIpAddress'] or '(no external ip)') for x in instances])
+
     instance_dns_names = [instance['PublicDnsName'] for instance in instances]
     if args.all_matching_instances:
         pass
