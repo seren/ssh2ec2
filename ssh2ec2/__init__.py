@@ -145,10 +145,8 @@ def main():
         if v: print "Found %s instance(s):" % len(instances)
         if v: print "\n".join([x.id + ': ' + (x.public_dns_name or x.ip_address or '(no external ip)') for x in instances])
 
-    instance_dns_names = [[
-        instance['PublicDnsName'] for instance in reservation['Instances']][0]
-        for reservation
-        in reservations['Reservations']]
+    instances = sum([reservation['Instances'] for reservation in reservations['Reservations']],[])  # sum merges the arrays of instances from each reservation
+    instance_dns_names = [instance['PublicDnsName'] for instance in instances]
     if args.all_matching_instances:
         pass
     else:
