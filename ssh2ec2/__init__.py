@@ -144,26 +144,27 @@ def main():
         sys.exit(1)
 
     instances = sum([reservation['Instances'] for reservation in reservations['Reservations']],[])  # sum merges the arrays of instances from each reservation
+    dns_or_ip = lambda instance: instance.get('PublicDnsName') or instance.get('PublicIpAddress')
+    valid_addresses = [dns_or_ip(i) for i in instances if dns_or_ip(i)]
     if v: print "Found %s instance(s):" % len(instances)
-    if v: print "\n".join([x['InstanceId'] + ': ' + (x['PublicDnsName'] or x['PublicIpAddress'] or '(no external ip)') for x in instances])
+    if v: print "\n".join([x.get('InstanceId') + ': ' + (dns_or_ip(x) or '(no external ip)') for x in instances])
 
-    instance_dns_names = [instance['PublicDnsName'] for instance in instances]
     if args.all_matching_instances:
         pass
     else:
         # Pick a random instance from the results
-        instance_dns_names = [instance_dns_names[random.randrange(0, len(instance_dns_names))]]
+        valid_addresses = [valid_addresses[random.randrange(0, len(valid_addresses))]]
 
     if args.command:
         remote_command = ' '.join(args.command)
     else:
         remote_command = ''
 
-    for dns_name in instance_dns_names:
+    for inst_addr in valid_addresses:
         if args.ssh_user:
-            dns_name = '%s@%s' % (args.ssh_user, dns_name)
+            inst_addr = '%s@%s' % (args.ssh_user, inst_addr)
 
-        ssh_cmd = 'ssh %s %s %s' % (args.ssh_args, dns_name, remote_command)
+        ssh_cmd = 'ssh %s %s %s' % (args.ssh_args, inst_addr, remote_command)
         if v: print "\n" + ssh_cmd
         os.system(ssh_cmd)
 
